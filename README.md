@@ -1,5 +1,9 @@
 # AI-WEBUI-scripts-Random
 
+xy grid 값 임의로 넣는게 너무 귀찬아서만든것  
+xy_grid.py를 대충 개조함  
+
+
 # 설치법
 
 Random.py 를 받아서 WEBUI\stable-diffusion-webui\scripts 에 넣으면 된다
