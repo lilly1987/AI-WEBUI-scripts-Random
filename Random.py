@@ -269,7 +269,7 @@ class Script(scripts.Script):
         draw_legend = gr.Checkbox(label='Draw legend', value=True)
         include_lone_images = gr.Checkbox(label='Include Separate Images', value=True)
         no_fixed_seeds = gr.Checkbox(label='Keep -1 for seeds', value=True)
-        xychg = gr.Checkbox(label='x/y chgange', value=False)
+        xychg = gr.Checkbox(label='x/y change', value=False)
         
         return [step1, step2, stepc, cfg1, cfg2, cfgc, draw_legend, include_lone_images, no_fixed_seeds, xychg]
 
