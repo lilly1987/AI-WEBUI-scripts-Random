@@ -12,7 +12,7 @@ class Script(scripts.Script):
         return "Random"
 
     def ui(self, is_img2img):
-        loops = gr.Slider(minimum=1, maximum=1000, step=1, label='Loops', value=10)
+        loops = gr.Slider(minimum=1, maximum=1000, step=1, label='Loops', value=100)
         #denoising_strength_change_factor = gr.Slider(minimum=0.9, maximum=1.1, step=0.01, label='Denoising strength change factor', value=1)
 
         step1 = gr.Slider(minimum=1, maximum=150, step=1, label='step1 min/max', value=10)
@@ -29,12 +29,15 @@ class Script(scripts.Script):
 
     #def run(self, p, loops, denoising_strength_change_factor):
     def run(self, p, loops, step1, step2, cfg1, cfg2, no_fixed_seeds):
+        print(f"{loops};{step1};{step2};{cfg1};{cfg2};{no_fixed_seeds};")
+        print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(no_fixed_seeds)};")
+        
         #processing.fix_seed(p)
         if not no_fixed_seeds:
             processing.fix_seed(p)
             
 
-        print(f"bdfore steps:{p.steps} ; cfg:{p.cfg_scale}\n")
+        print(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}\r\n")
         for i in range(loops):
             if step1 > step2 :
                 p.steps=random.randint(step2,step1)
@@ -45,7 +48,8 @@ class Script(scripts.Script):
                 p.cfg_scale=random.randint(cfg2,cfg1)
             else :
                 p.cfg_scale=random.randint(cfg1,cfg2)
-            print(f"rnd steps:{p.steps} ; cfg:{p.cfg_scale}\n")
+            
+            print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}\r\n")
             proc = process_images(p)
             image = proc.images
             
