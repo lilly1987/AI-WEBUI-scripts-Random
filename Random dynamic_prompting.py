@@ -203,15 +203,15 @@ class Script(scripts.Script):
         return [info,loops,step1, step2,  cfg1, cfg2,  fixed_seeds]
 
     def run(self, p, info, loops, step1, step2, cfg1, cfg2, fixed_seeds):
-        print(f"\r\n{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};")
-        print(f"\r\n{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};")
+        print(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};")
+        print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};")
         
         original_prompt = p.prompt[0] if type(p.prompt) == list else p.prompt
         original_seed = p.seed
 
         num_images = p.n_iter * p.batch_size
         
-        print(f"\r\nbdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
+        print(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
         for i in range(loops):
             if step1 > step2 :
                 p.steps=random.randint(step2,step1)
@@ -226,7 +226,7 @@ class Script(scripts.Script):
             all_prompts = [
                 generate_prompt(original_prompt) for _ in range(num_images)
             ]
-            print(f"\r\nloops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
+            print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
             if fixed_seeds:
                 p.seed=-1;
                 fix_seed(p)
@@ -234,7 +234,7 @@ class Script(scripts.Script):
             print(f"p.seed ; {type(p.seed)} ; {p.seed}\r\n")
             #all_seeds = [int(p.seed[0] if type(p.seed) == list else p.seed) + (x if p.subseed_strength == 0 else 0) for x in range(num_images)]
             all_seeds = [int(p.seed) + (x if p.subseed_strength == 0 else 0) for x in range(num_images)]
-            print(f"\r\nall_seeds ; {type(all_seeds)} ; {all_seeds}")
+            print(f"all_seeds ; {type(all_seeds)} ; {all_seeds}")
             print(f"Prompt matrix will create {len(all_prompts)} images in a total of {p.n_iter} batches.")
             #logger.info(f"Prompt matrix will create {len(all_prompts)} images in a total of {p.n_iter} batches.")
 
