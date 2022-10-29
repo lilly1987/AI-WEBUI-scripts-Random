@@ -11,7 +11,8 @@ import modules.scripts as scripts
 
 from modules.processing import process_images, fix_seed, Processed
 from modules.shared import opts
-from modules import processing
+from modules import processing,shared,generation_parameters_copypaste
+from modules.images import FilenameGenerator
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -156,7 +157,36 @@ def generate_prompt(template):
             logger.info(f"Prompt: {prompt}")
             return prompt
         old_prompt = prompt
-        
+
+def create_infotext(p):
+
+    clip_skip = getattr(p, 'clip_skip', opts.CLIP_stop_at_last_layers)
+
+    generation_params = {
+        #"Steps": p.steps,
+        #"Sampler": processing.get_correct_sampler(p)[p.sampler_index].name,
+        #"CFG scale": p.cfg_scale,
+        "Face restoration": (opts.face_restoration_model if p.restore_faces else None),
+        "Size": f"{p.width}x{p.height}",
+        "Model hash": getattr(p, 'sd_model_hash', None if not opts.add_model_hash_to_info or not shared.sd_model.sd_model_hash else shared.sd_model.sd_model_hash),
+        "Model": (None if not opts.add_model_name_to_info or not shared.sd_model.sd_checkpoint_info.model_name else shared.sd_model.sd_checkpoint_info.model_name.replace(',', '').replace(':', '')),
+        "Hypernet": (None if shared.loaded_hypernetwork is None else shared.loaded_hypernetwork.name),
+        "Seed resize from": (None if p.seed_resize_from_w == 0 or p.seed_resize_from_h == 0 else f"{p.seed_resize_from_w}x{p.seed_resize_from_h}"),
+        "Denoising strength": getattr(p, 'denoising_strength', None),
+        "Eta": (None if p.sampler is None or p.sampler.eta == p.sampler.default_eta else p.sampler.eta),
+        "Clip skip": None if clip_skip <= 1 else clip_skip,
+        "ENSD": None if opts.eta_noise_seed_delta == 0 else opts.eta_noise_seed_delta,
+    }
+
+    generation_params.update(p.extra_generation_params)
+
+    generation_params_text = ", ".join([k if k == v else f'{k}: {generation_parameters_copypaste.quote(v)}' for k, v in generation_params.items() if v is not None])
+
+    negative_prompt_text = "\nNegative prompt: \n" + p.negative_prompt if p.negative_prompt else ""
+
+    return f"{p.prompt[0] if type(p.prompt) == list else p.prompt}{negative_prompt_text}\n{generation_params_text}".strip()
+
+
 class Script(scripts.Script):
     def title(self):
         return f"Random Dynamic Prompting v{VERSION}"
@@ -208,8 +238,30 @@ class Script(scripts.Script):
         
         original_prompt = p.prompt[0] if type(p.prompt) == list else p.prompt
         original_seed = p.seed
-        print(f"original_prompt ; {original_prompt}")
+        #print(f"original_prompt ; {original_prompt}")
         
+        print(f"p.outpath_samples ; {p.outpath_samples}")
+        os.makedirs(p.outpath_samples, exist_ok=True)
+        
+        namegen = FilenameGenerator(p, p.seed, p.prompt)
+        print(f"opts.save_to_dirs ; {opts.save_to_dirs}")
+        print(f"opts.directories_filename_pattern ; {opts.directories_filename_pattern}")
+        file_decoration = namegen.apply( opts.directories_filename_pattern)
+        print(f"file_decoration ; {file_decoration}")
+        fullfn=os.path.join(p.outpath_samples,file_decoration)
+        print(f"fullfn ; {fullfn}")
+        os.makedirs(fullfn, exist_ok=True)
+        
+        if opts.save_txt and original_prompt is not None:
+            txt_fullfn =os.path.join(fullfn,f"{file_decoration}-{self.title()}.txt") 
+            print(f"txt_fullfn ; {txt_fullfn}")
+            with open(txt_fullfn, "w", encoding="utf8") as file:
+                infotexts=create_infotext(p)
+                #print(f"p.info ; {p.info}")
+                print(f"infotexts ; {infotexts}")
+                #print(f"p.job_timestamp ; {p.job_timestamp}")
+                file.write(infotexts + "\n")
+            
         num_images = p.n_iter * p.batch_size
         
         print(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
