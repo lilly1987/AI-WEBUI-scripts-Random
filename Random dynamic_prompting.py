@@ -208,7 +208,8 @@ class Script(scripts.Script):
         
         original_prompt = p.prompt[0] if type(p.prompt) == list else p.prompt
         original_seed = p.seed
-
+        print(f"original_prompt ; {original_prompt}")
+        
         num_images = p.n_iter * p.batch_size
         
         print(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
@@ -231,7 +232,7 @@ class Script(scripts.Script):
                 p.seed=-1;
                 fix_seed(p)
 
-            print(f"p.seed ; {type(p.seed)} ; {p.seed}\r\n")
+            print(f"p.seed ; {type(p.seed)} ; {p.seed}")
             #all_seeds = [int(p.seed[0] if type(p.seed) == list else p.seed) + (x if p.subseed_strength == 0 else 0) for x in range(num_images)]
             all_seeds = [int(p.seed) + (x if p.subseed_strength == 0 else 0) for x in range(num_images)]
             print(f"all_seeds ; {type(all_seeds)} ; {all_seeds}")
