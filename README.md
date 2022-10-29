@@ -8,6 +8,7 @@ xy_grid.py를 대충 개조함
 
 https://github.com/AUTOMATIC1111/stable-diffusion-webui/blob/master/scripts/xy_grid.py  
 https://gist.github.com/camenduru/9ec5f8141db9902e375967e93250860f  
+https://github.com/adieyal/sd-dynamic-prompting  
 
 # 설치법
 
