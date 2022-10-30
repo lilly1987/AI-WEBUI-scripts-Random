@@ -13,6 +13,7 @@ from modules.processing import process_images, fix_seed, Processed
 from modules.shared import opts
 from modules import processing,shared,generation_parameters_copypaste
 from modules.images import FilenameGenerator
+from PIL import Image
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -243,7 +244,7 @@ class Script(scripts.Script):
         print(f"p.outpath_samples ; {p.outpath_samples}")
         os.makedirs(p.outpath_samples, exist_ok=True)
         
-        namegen = FilenameGenerator(p, p.seed, p.prompt)
+        namegen = FilenameGenerator(p, p.seed, p.prompt,Image.new('RGBA', (p.width, p.height)))
         print(f"opts.save_to_dirs ; {opts.save_to_dirs}")
         print(f"opts.directories_filename_pattern ; {opts.directories_filename_pattern}")
         file_decoration = namegen.apply( opts.directories_filename_pattern)
