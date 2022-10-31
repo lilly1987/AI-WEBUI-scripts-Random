@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 WILDCARD_DIR = getattr(opts, "wildcard_dir", "scripts/wildcards")
 MAX_RECURSIONS = 20
-VERSION = "0.6.0"
+VERSION = "0.6.2"
 WILDCARD_SUFFIX = "txt"
 
 re_wildcard = re.compile(r"__(.*?)__")
@@ -190,7 +190,7 @@ def create_infotext(p):
 
 class Script(scripts.Script):
     def title(self):
-        return f"Random Dynamic Prompting v{VERSION}"
+        return f"랜덤 다이나믹 프롬프트 v{VERSION}"
 
     def ui(self, is_img2img):
         loops = gr.Slider(minimum=1, maximum=1000, step=1, label='Loops', value=100)
@@ -207,17 +207,17 @@ class Script(scripts.Script):
         
         html = f"""
             <h3><strong>Combinations</strong></h3>
-            Choose a number of terms from a list, in this case we choose two artists
-            <code>{{2$$artist1|artist2|artist3}}</code>
-            If $$ is not provided, then 1$$ is assumed.
+            리스트에서 단어들을 선택합니다. 이 경우에는 아티스트를 2가지 골라보죠 :
+            <code>{{2$artist1|artist2|artist3}}</code>
+            $가 입력되지 않으면, 1$가 자동으로 입력됩니다.
             <br>
-            A range can be provided:
-            <code>{{1-3$$artist1|artist2|artist3}}</code>
-            In this case, a random number of artists between 1 and 3 is chosen.
+            범위도 지정 가능합니다 :
+            <code>{{1-3$artist1|artist2|artist3}}</code>
+            이 경우에는 1~3가지의 아티스트가 랜덤하게 결정됩니다.
             <br/><br/>
 
             <h3><strong>Wildcards</strong></h3>
-            <p>Available wildcards</p>
+            <p>사용가능한 와일드카드</p>
             <ul style="overflow-y:auto;max-height:30rem;">
         """
         
@@ -227,8 +227,8 @@ class Script(scripts.Script):
         html += "</ul>"
         html += f"""
             <br/>
-            <code>WILDCARD_DIR: {WILDCARD_DIR}</code><br/>
-            <small>You can add more wildcards by creating a text file with one term per line and name is mywildcards.txt. Place it in {WILDCARD_DIR}. <code>__mywildcards__</code> will then become available.</small>
+            <code>와일드카드 경로: {WILDCARD_DIR}</code><br/>
+            <small>mywildcards.txt라는 이름의 텍스트 파일을 만들어, 1줄당 1개의 단어를 입력하면 와일드카드를 추가할 수 있습니다. 텍스트 파일은 {WILDCARD_DIR} 에 넣어주세요. 재시작 후 <code>__mywildcards__</code>를 사용할 수 있게 됩니다.</small>
         """
         info = gr.HTML(html)
         return [info,loops,step1, step2,  cfg1, cfg2,  fixed_seeds]
