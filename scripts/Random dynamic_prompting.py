@@ -245,27 +245,27 @@ class Script(scripts.Script):
         os.makedirs(p.outpath_samples, exist_ok=True)
         
         namegen = FilenameGenerator(p, p.seed, p.prompt,Image.new('RGBA', (p.width, p.height)))
-        print(f"opts.save_to_dirs ; {opts.save_to_dirs}")
-        print(f"opts.directories_filename_pattern ; {opts.directories_filename_pattern}")
+        #print(f"opts.save_to_dirs ; {opts.save_to_dirs}")
+        #print(f"opts.directories_filename_pattern ; {opts.directories_filename_pattern}")
         file_decoration = namegen.apply( opts.directories_filename_pattern)
-        print(f"file_decoration ; {file_decoration}")
+        #print(f"file_decoration ; {file_decoration}")
         fullfn=os.path.join(p.outpath_samples,file_decoration)
-        print(f"fullfn ; {fullfn}")
+        #print(f"fullfn ; {fullfn}")
         os.makedirs(fullfn, exist_ok=True)
         
         if opts.save_txt and original_prompt is not None:
             txt_fullfn =os.path.join(fullfn,f"{file_decoration}-{self.title()}.txt") 
-            print(f"txt_fullfn ; {txt_fullfn}")
+            #print(f"txt_fullfn ; {txt_fullfn}")
             with open(txt_fullfn, "w", encoding="utf8") as file:
                 infotexts=create_infotext(p)
                 #print(f"p.info ; {p.info}")
-                print(f"infotexts ; {infotexts}")
+                #print(f"infotexts ; {infotexts}")
                 #print(f"p.job_timestamp ; {p.job_timestamp}")
                 file.write(infotexts + "\n")
             
         num_images = p.n_iter * p.batch_size
         
-        print(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
+        #print(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
         for i in range(loops):
             if step1 > step2 :
                 p.steps=random.randint(step2,step1)
