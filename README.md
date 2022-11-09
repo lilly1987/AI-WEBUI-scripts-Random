@@ -4,6 +4,8 @@ xy grid 값 임의로 넣는게 너무 귀찬아서만든것
 xy_grid.py를 대충 개조함  
 마음대로 개조 및 배포 가능  
 
+랜덤 다이나믹은 https://github.com/lilly1987/sd-dynamic-prompting 로 분리  
+
 ### 참조
 
 https://github.com/AUTOMATIC1111/stable-diffusion-webui/blob/master/scripts/xy_grid.py  
