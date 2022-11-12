@@ -49,11 +49,11 @@ class Script(scripts.Script):
         return "Random"
 
     def ui(self, is_img2img):
-        loops = gr.Slider(minimum=1, maximum=1000, step=1, label='Loops', value=100)
+        loops = gr.Slider(minimum=1, maximum=10000, step=1, label='Loops', value=10000)
         #denoising_strength_change_factor = gr.Slider(minimum=0.9, maximum=1.1, step=0.01, label='Denoising strength change factor', value=1)
 
         step1 = gr.Slider(minimum=1, maximum=150, step=1, label='step1 min/max', value=10)
-        step2 = gr.Slider(minimum=1, maximum=150, step=1, label='step2 min/max', value=30)
+        step2 = gr.Slider(minimum=1, maximum=150, step=1, label='step2 min/max', value=15)
         #stepc = gr.Slider(minimum=1, maximum=100, step=1, label='step cnt', value=10)
         cfg1 = gr.Slider(minimum=1, maximum=30, step=1, label='cfg1 min/max', value=6)
         cfg2 = gr.Slider(minimum=1, maximum=30, step=1, label='cfg2 min/max', value=15)
