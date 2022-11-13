@@ -72,6 +72,7 @@ class Script(scripts.Script):
 
     #def run(self,p,loops,denoising_strength_change_factor):
     def run(self,p,loops,step1,step2,cfg1,cfg2,no_fixed_seeds,w1,w2,h1,h2):#,whmax
+        #print(f"p.all_seeds ; {p.all_seeds}")
         # print(f"{loops};{step1};{step2};{cfg1};{cfg2};{no_fixed_seeds};")
         # print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(no_fixed_seeds)};")
         
@@ -98,8 +99,8 @@ class Script(scripts.Script):
                 #print(f"p.job_timestamp ; {p.job_timestamp}")
                 file.write(infotexts + "\n")
 
-        p.prompt_for_display = p.prompt[0] if type(p.prompt) == list else p.prompt
-        
+        prompt = p.prompt[0] if type(p.prompt) == list else p.prompt
+        negative_prompt = p.negative_prompt[0] if type(p.negative_prompt) == list else p.negative_prompt
         #processing.fix_seed(p)
         if not no_fixed_seeds:
             p.seed=-1;
@@ -138,6 +139,10 @@ class Script(scripts.Script):
             p.height=p.height*64
             
             print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ; width:{p.width} ; height:{p.height}")
+            
+            p.prompt = prompt
+            p.negative_prompt = negative_prompt
+            p.prompt_for_display = p.prompt[0] if type(p.prompt) == list else p.prompt
             
             proc = process_images(p)
             image = proc.images
