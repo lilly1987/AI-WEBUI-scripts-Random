@@ -57,14 +57,21 @@ class Script(scripts.Script):
         cfg1 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg1 min/max',value=6)
         cfg2 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg2 min/max',value=15)
         #cfgc = gr.Slider(minimum=1,maximum=100,step=1,label='cfg cnt',value=10)
+
+        w1 = gr.Slider(minimum=64,maximum=2048,step=64,label='w1 min/max',value=512)
+        w2 = gr.Slider(minimum=64,maximum=2048,step=64,label='w2 min/max',value=768)
+        h1 = gr.Slider(minimum=64,maximum=2048,step=64,label='h1 min/max',value=512)
+        h2 = gr.Slider(minimum=64,maximum=2048,step=64,label='h2 min/max',value=768)
+        
+        #whmax = gr.Slider(minimum=4096,maximum=4194304,step=4096,label='w*h max',value=393216)
         
         no_fixed_seeds = gr.Checkbox(label='Keep -1 for seeds',value=True)
         
         #return [loops,denoising_strength_change_factor]
-        return [loops,step1,step2,cfg1,cfg2,no_fixed_seeds]
+        return [loops,step1,step2,cfg1,cfg2,no_fixed_seeds,w1,w2,h1,h2]#,whmax
 
     #def run(self,p,loops,denoising_strength_change_factor):
-    def run(self,p,loops,step1,step2,cfg1,cfg2,no_fixed_seeds):
+    def run(self,p,loops,step1,step2,cfg1,cfg2,no_fixed_seeds,w1,w2,h1,h2):#,whmax
         # print(f"{loops};{step1};{step2};{cfg1};{cfg2};{no_fixed_seeds};")
         # print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(no_fixed_seeds)};")
         
@@ -98,7 +105,12 @@ class Script(scripts.Script):
             p.seed=-1;
             processing.fix_seed(p)
             
-
+        h1=h1/64
+        h2=h2/64
+        w1=w1/64
+        w2=w2/64
+        print(f" width:{w1},{w2} ; height:{h1},{h2}")
+            
         print(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
         for i in range(loops):
             if step1 > step2 :
@@ -110,8 +122,22 @@ class Script(scripts.Script):
                 p.cfg_scale=random.randint(cfg2,cfg1)
             else :
                 p.cfg_scale=random.randint(cfg1,cfg2)
+                
+            if w1 > w2 :
+                p.width=random.randint(w2,w1)
+            else :
+                p.width=random.randint(w1,w2)
             
-            print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
+            p.width=p.width*64
+            
+            if h1 > h2 :
+                p.height=random.randint(h2,h1)
+            else :
+                p.height=random.randint(h1,h2)
+            
+            p.height=p.height*64
+            
+            print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ; width:{p.width} ; height:{p.height}")
             
             proc = process_images(p)
             image = proc.images
