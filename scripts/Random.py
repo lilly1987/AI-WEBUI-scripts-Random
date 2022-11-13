@@ -12,7 +12,6 @@ import re, random
 from modules.images import FilenameGenerator
 from PIL import Image
 from modules import processing,shared,generation_parameters_copypaste
-from prompts import constants
 from modules.shared import opts, state
 
 def create_infotext(p):
