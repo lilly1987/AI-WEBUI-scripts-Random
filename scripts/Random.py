@@ -13,6 +13,7 @@ from modules.images import FilenameGenerator
 from PIL import Image
 from modules import processing,shared,generation_parameters_copypaste
 from modules.shared import opts,state
+from modules.sd_samplers import samplers
 
 def create_infotext(p):
 
@@ -41,9 +42,19 @@ def create_infotext(p):
     negative_prompt_text = "\nNegative prompt: \n" + p.negative_prompt if p.negative_prompt else ""
 
     return f"{p.prompt[0] if type(p.prompt) == list else p.prompt}{negative_prompt_text}\n{generation_params_text}".strip()
+
+def wh_chg_n(p):
+    return
+def wh_chg_w(p):
+    if p.height>p.width:
+        (p.width,p.height)=(p.height,p.width)
+def wh_chg_h(p):
+    if p.width>p.height:
+        (p.width,p.height)=(p.height,p.width)
     
 class Script(scripts.Script):
-
+    fix_whs=['none','width long','height long']
+    
     def title(self):
         return "Random"
 
@@ -65,16 +76,20 @@ class Script(scripts.Script):
         
         #whmax = gr.Slider(minimum=4096,maximum=4194304,step=4096,label='w*h max',value=393216)
         
-        no_fixed_seeds = gr.Checkbox(label='Keep -1 for seeds',value=True)
+        fix_wh = gr.Radio(label='fix wh', choices=[x for x in self.fix_whs], value=self.fix_whs[0], type="index")
+        
+        # samplers
+        
+        fixed_seeds = gr.Checkbox(label='Keep -1 for seeds',value=True)
         
         #return [loops,denoising_strength_change_factor]
-        return [loops,step1,step2,cfg1,cfg2,no_fixed_seeds,w1,w2,h1,h2]#,whmax
+        return [loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh]#,whmax
 
     #def run(self,p,loops,denoising_strength_change_factor):
-    def run(self,p,loops,step1,step2,cfg1,cfg2,no_fixed_seeds,w1,w2,h1,h2):#,whmax
+    def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh):#,whmax
         #print(f"p.all_seeds ; {p.all_seeds}")
-        # print(f"{loops};{step1};{step2};{cfg1};{cfg2};{no_fixed_seeds};")
-        # print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(no_fixed_seeds)};")
+        print(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};")
+        print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};")
         
         # 와일드카드 텍스트 저장용 폴더 생성
         #print(f"p.outpath_samples ; {p.outpath_samples}")
@@ -101,41 +116,32 @@ class Script(scripts.Script):
 
         prompt = p.prompt[0] if type(p.prompt) == list else p.prompt
         negative_prompt = p.negative_prompt[0] if type(p.negative_prompt) == list else p.negative_prompt
-        #processing.fix_seed(p)
-        if not no_fixed_seeds:
-            p.seed=-1;
-            processing.fix_seed(p)
-            
+
         h1=h1/64
         h2=h2/64
         w1=w1/64
         w2=w2/64
-        print(f" width:{w1},{w2} ; height:{h1},{h2}")
-            
+        
+        (stepmin,stepmax)= (min(step2,step1),max(step2,step1))
+        (cfgmin,cfgmax)= (min(cfg1,cfg2),max(cfg1,cfg2))
+        (wmin,wmax)= (min(w1,w2),max(w1,w2))
+        (hmin,hmax)= (min(h1,h2),max(h1,h2))
+        
+        #print(f" width:{w1},{w2} ; height:{h1},{h2}")
+        
+        wh_chg = {0 : wh_chg_n, 1: wh_chg_w, 2 : wh_chg_h}.get(fix_wh, wh_chg_n)
+        
         print(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
         for i in range(loops):
-            if step1 > step2 :
-                p.steps=random.randint(step2,step1)
-            else :
-                p.steps=random.randint(step1,step2)
-                
-            if cfg1 > cfg2 :
-                p.cfg_scale=random.randint(cfg2,cfg1)
-            else :
-                p.cfg_scale=random.randint(cfg1,cfg2)
-                
-            if w1 > w2 :
-                p.width=random.randint(w2,w1)
-            else :
-                p.width=random.randint(w1,w2)
+            
+            p.steps=random.randint(stepmin,stepmax)
+            p.cfg_scale=random.randint(cfgmin,cfgmax)
+            p.width=random.randint(wmin,wmax)
+            p.height=random.randint(hmin,hmax)
+
+            wh_chg(p)
             
             p.width=p.width*64
-            
-            if h1 > h2 :
-                p.height=random.randint(h2,h1)
-            else :
-                p.height=random.randint(h1,h2)
-            
             p.height=p.height*64
             
             print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ; width:{p.width} ; height:{p.height}")
@@ -143,6 +149,10 @@ class Script(scripts.Script):
             p.prompt = prompt
             p.negative_prompt = negative_prompt
             p.prompt_for_display = p.prompt[0] if type(p.prompt) == list else p.prompt
+
+            if fixed_seeds:
+                p.seed=-1;
+                processing.fix_seed(p)
             
             try:
                 proc = process_images(p)
@@ -154,3 +164,4 @@ class Script(scripts.Script):
                 break
             
         return Processed(p,image,p.seed,proc.info)
+
