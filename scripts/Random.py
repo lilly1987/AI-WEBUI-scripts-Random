@@ -144,9 +144,11 @@ class Script(scripts.Script):
             p.negative_prompt = negative_prompt
             p.prompt_for_display = p.prompt[0] if type(p.prompt) == list else p.prompt
             
-            proc = process_images(p)
-            image = proc.images
-            
+            try:
+                proc = process_images(p)
+                image = proc.images
+            except Exception as e :
+                print(f"process_images err ;\r\n",e)
             
             if state.interrupted:
                 break
