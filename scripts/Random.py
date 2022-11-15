@@ -69,27 +69,29 @@ class Script(scripts.Script):
         cfg2 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg2 min/max',value=15)
         #cfgc = gr.Slider(minimum=1,maximum=100,step=1,label='cfg cnt',value=10)
 
-        w1 = gr.Slider(minimum=64,maximum=2048,step=64,label='w1 min/max',value=512)
-        w2 = gr.Slider(minimum=64,maximum=2048,step=64,label='w2 min/max',value=768)
-        h1 = gr.Slider(minimum=64,maximum=2048,step=64,label='h1 min/max',value=512)
-        h2 = gr.Slider(minimum=64,maximum=2048,step=64,label='h2 min/max',value=768)
+        w1 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 1 min/max', elem_id="w1",value=512)
+        w2 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 2 min/max', elem_id="w2",value=768)
+        h1 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 1 min/max', elem_id="h1",value=512)
+        h2 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 2 min/max', elem_id="h2",value=768)
         
         #whmax = gr.Slider(minimum=4096,maximum=4194304,step=4096,label='w*h max',value=393216)
         
-        fix_wh = gr.Radio(label='fix wh', choices=[x for x in self.fix_whs], value=self.fix_whs[0], type="index")
+        fix_wh = gr.Radio(label='fix width height direction', elem_id="fix_wh", choices=[x for x in self.fix_whs], value=self.fix_whs[0], type="index")
+        
+        rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers], type="index")
         
         # samplers
         
         fixed_seeds = gr.Checkbox(label='Keep -1 for seeds',value=True)
         
         #return [loops,denoising_strength_change_factor]
-        return [loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh]#,whmax
+        return [loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler]#,whmax
 
     #def run(self,p,loops,denoising_strength_change_factor):
-    def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh):#,whmax
+    def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler):#,whmax
         #print(f"p.all_seeds ; {p.all_seeds}")
-        print(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};")
-        print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};")
+        print(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};{p.sampler_index};{rnd_sampler};")
+        print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};{type(p.sampler_index)};{type(rnd_sampler)};")
         
         # 와일드카드 텍스트 저장용 폴더 생성
         #print(f"p.outpath_samples ; {p.outpath_samples}")
@@ -131,6 +133,12 @@ class Script(scripts.Script):
         
         wh_chg = {0 : wh_chg_n, 1: wh_chg_w, 2 : wh_chg_h}.get(fix_wh, wh_chg_n)
         
+        rnd_sampler_chg=False
+        if len(rnd_sampler) == 1:
+            p.sampler_index=rnd_sampler[0]
+        elif len(rnd_sampler) > 1:
+            rnd_sampler_chg=True
+        
         print(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
         for i in range(loops):
             
@@ -138,7 +146,9 @@ class Script(scripts.Script):
             p.cfg_scale=random.randint(cfgmin,cfgmax)
             p.width=random.randint(wmin,wmax)
             p.height=random.randint(hmin,hmax)
-
+            if rnd_sampler_chg:
+                p.sampler_index=random.choice(rnd_sampler)
+            
             wh_chg(p)
             
             p.width=p.width*64
