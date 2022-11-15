@@ -76,9 +76,9 @@ class Script(scripts.Script):
         
         #whmax = gr.Slider(minimum=4096,maximum=4194304,step=4096,label='w*h max',value=393216)
         
-        fix_wh = gr.Radio(label='fix width height direction', elem_id="fix_wh", choices=[x for x in self.fix_whs], value=self.fix_whs[0], type="index")
+        fix_wh = gr.Radio(label='fix width height direction', elem_id="fix_wh", choices=[x for x in self.fix_whs], value=0, type="index")
         
-        rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers], type="index")
+        rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers],value=[x.name for x in samplers], type="index")
         
         # samplers
         
@@ -166,9 +166,9 @@ class Script(scripts.Script):
             
             try:
                 proc = process_images(p)
-                image = proc.images
             except Exception as e :
                 print(f"process_images err ;\r\n",e)
+            image = proc.images
             
             if state.interrupted:
                 break
