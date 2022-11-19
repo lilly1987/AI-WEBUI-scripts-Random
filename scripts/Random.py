@@ -69,8 +69,8 @@ class Script(scripts.Script):
             step2 = gr.Slider(minimum=1,maximum=150,step=1,label='step2 min/max',value=15)
         #stepc = gr.Slider(minimum=1,maximum=100,step=1,label='step cnt',value=10)
         with gr.Blocks():
-            cfg1 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg1 min/max',value=6)
-            cfg2 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg2 min/max',value=15)
+            cfg1 = gr.Slider(minimum=1,maximum=30,step=0.5,label='cfg1 min/max',value=6)
+            cfg2 = gr.Slider(minimum=1,maximum=30,step=0.5,label='cfg2 min/max',value=15)
         #cfgc = gr.Slider(minimum=1,maximum=100,step=1,label='cfg cnt',value=10)
         #if is_img2img:
         with gr.Blocks():
@@ -172,7 +172,8 @@ class Script(scripts.Script):
         for i in range(loops):
             
             p.steps=random.randint(stepmin,stepmax)
-            p.cfg_scale=random.randint(cfgmin,cfgmax)
+            #p.cfg_scale=random.randint(cfgmin,cfgmax)
+            p.cfg_scale=random.randint(0, int((cfgmax - cfgmin) / 0.5)) * 0.5 + cfgmin
             if is_img2img:
                 p.denoising_strength=random.uniform(dmin,dmax)
             if not no_resize:
