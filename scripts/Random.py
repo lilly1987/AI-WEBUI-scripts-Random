@@ -59,18 +59,30 @@ class Script(scripts.Script):
         return "Random"
 
     def ui(self,is_img2img):
-        with gr.Group():
+        print(f"is_img2img : {(is_img2img)};")
+        info=gr.HTML("<br>")
+        with gr.Blocks():
             loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=10000)
         #denoising_strength_change_factor = gr.Slider(minimum=0.9,maximum=1.1,step=0.01,label='Denoising strength change factor',value=1)
-        with gr.Group():
+        with gr.Blocks():
             step1 = gr.Slider(minimum=1,maximum=150,step=1,label='step1 min/max',value=10)
             step2 = gr.Slider(minimum=1,maximum=150,step=1,label='step2 min/max',value=15)
         #stepc = gr.Slider(minimum=1,maximum=100,step=1,label='step cnt',value=10)
-        with gr.Group():
+        with gr.Blocks():
             cfg1 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg1 min/max',value=6)
             cfg2 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg2 min/max',value=15)
         #cfgc = gr.Slider(minimum=1,maximum=100,step=1,label='cfg cnt',value=10)
-        with gr.Group():
+        #if is_img2img:
+        with gr.Blocks():
+            info1=gr.HighlightedText("olny i2i option")
+            denoising1 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising1 min/max',value=0)
+            denoising2 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising2 min/max',value=1)
+            #else :
+            #    denoising1=None
+            #    denoising2=None
+
+        with gr.Blocks():
+            info2=gr.HighlightedText("size")
             no_resize = gr.Checkbox(label='no resize',value=False)
             w1 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 1 min/max', elem_id="w1",value=512)
             w2 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 2 min/max', elem_id="w2",value=768)
@@ -81,24 +93,27 @@ class Script(scripts.Script):
         
             fix_wh = gr.Radio(label='fix width height direction', elem_id="fix_wh", choices=[x for x in self.fix_whs], value=0, type="index")
 
-        with gr.Group():
+
+        with gr.Blocks():
+            info2=gr.HighlightedText(" ")
             if is_img2img:
                 rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers],value=[x.name for x in samplers_for_img2img])#, type="index"
             else :
                 rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers],value=[x.name for x in samplers])#, type="index"
         
         # samplers
-        with gr.Group():
+        with gr.Blocks():
+            info2=gr.HighlightedText(" ")
             fixed_seeds = gr.Checkbox(label='Keep -1 for seeds',value=True)
         
         #return [loops,denoising_strength_change_factor]
-        return [loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize]#,whmax
+        return [loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize,denoising2,denoising1,info1,info2]#,whmax
 
     #def run(self,p,loops,denoising_strength_change_factor):
-    def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize):#,whmax
+    def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize,denoising2,denoising1,info1,info2):#,whmax
         #print(f"p.all_seeds ; {p.all_seeds}")
-        print(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};{p.sampler_name};{rnd_sampler};")
-        print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};{type(p.sampler_name)};{type(rnd_sampler)};")
+        print(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};{p.sampler_name};{p.denoising_strength};{rnd_sampler};")
+        print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};{type(p.sampler_name)};{type(p.denoising_strength)};{type(rnd_sampler)};")
         
         # 와일드카드 텍스트 저장용 폴더 생성
         #print(f"p.outpath_samples ; {p.outpath_samples}")
@@ -136,7 +151,14 @@ class Script(scripts.Script):
         
         (stepmin,stepmax)= (min(step2,step1),max(step2,step1))
         (cfgmin,cfgmax)= (min(cfg1,cfg2),max(cfg1,cfg2))
+        if denoising1 is not None and denoising2 is not None :
+            is_img2img=True
+        else :
+            is_img2img=False
         
+        
+        if is_img2img:
+            (dmin,dmax)= (min(denoising1,denoising2),max(denoising1,denoising2))
         #print(f" width:{w1},{w2} ; height:{h1},{h2}")
         
         
@@ -151,7 +173,8 @@ class Script(scripts.Script):
             
             p.steps=random.randint(stepmin,stepmax)
             p.cfg_scale=random.randint(cfgmin,cfgmax)
-            
+            if is_img2img:
+                p.denoising_strength=random.uniform(dmin,dmax)
             if not no_resize:
                 p.width=random.randint(wmin,wmax)*64
                 p.height=random.randint(hmin,hmax)*64
@@ -160,7 +183,10 @@ class Script(scripts.Script):
             if rnd_sampler_chg:
                 p.sampler_name=random.choice(rnd_sampler)
             
-            print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ; width:{p.width} ; height:{p.height}")
+            if is_img2img:
+                print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ;  denoising_strength:{p.denoising_strength} ; width:{p.width} ; height:{p.height}")
+            else :
+                print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ; width:{p.width} ; height:{p.height}")
             
             p.prompt = prompt
             p.negative_prompt = negative_prompt
@@ -172,9 +198,9 @@ class Script(scripts.Script):
             
             try:
                 proc = process_images(p)
+                image = proc.images
             except Exception as e :
                 print(f"process_images err ;\r\n",e)
-            image = proc.images
             
             if state.interrupted:
                 break
