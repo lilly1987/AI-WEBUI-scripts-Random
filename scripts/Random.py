@@ -13,7 +13,7 @@ from modules.images import FilenameGenerator
 from PIL import Image
 from modules import processing,shared,generation_parameters_copypaste
 from modules.shared import opts,state
-from modules.sd_samplers import samplers
+from modules.sd_samplers import samplers,samplers_for_img2img
 
 def create_infotext(p):
 
@@ -59,39 +59,46 @@ class Script(scripts.Script):
         return "Random"
 
     def ui(self,is_img2img):
-        loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=10000)
+        with gr.Group():
+            loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=10000)
         #denoising_strength_change_factor = gr.Slider(minimum=0.9,maximum=1.1,step=0.01,label='Denoising strength change factor',value=1)
-
-        step1 = gr.Slider(minimum=1,maximum=150,step=1,label='step1 min/max',value=10)
-        step2 = gr.Slider(minimum=1,maximum=150,step=1,label='step2 min/max',value=15)
+        with gr.Group():
+            step1 = gr.Slider(minimum=1,maximum=150,step=1,label='step1 min/max',value=10)
+            step2 = gr.Slider(minimum=1,maximum=150,step=1,label='step2 min/max',value=15)
         #stepc = gr.Slider(minimum=1,maximum=100,step=1,label='step cnt',value=10)
-        cfg1 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg1 min/max',value=6)
-        cfg2 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg2 min/max',value=15)
+        with gr.Group():
+            cfg1 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg1 min/max',value=6)
+            cfg2 = gr.Slider(minimum=1,maximum=30,step=1,label='cfg2 min/max',value=15)
         #cfgc = gr.Slider(minimum=1,maximum=100,step=1,label='cfg cnt',value=10)
-
-        w1 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 1 min/max', elem_id="w1",value=512)
-        w2 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 2 min/max', elem_id="w2",value=768)
-        h1 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 1 min/max', elem_id="h1",value=512)
-        h2 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 2 min/max', elem_id="h2",value=768)
+        with gr.Group():
+            no_resize = gr.Checkbox(label='no resize',value=False)
+            w1 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 1 min/max', elem_id="w1",value=512)
+            w2 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 2 min/max', elem_id="w2",value=768)
+            h1 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 1 min/max', elem_id="h1",value=512)
+            h2 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 2 min/max', elem_id="h2",value=768)
         
         #whmax = gr.Slider(minimum=4096,maximum=4194304,step=4096,label='w*h max',value=393216)
         
-        fix_wh = gr.Radio(label='fix width height direction', elem_id="fix_wh", choices=[x for x in self.fix_whs], value=0, type="index")
-        
-        rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers],value=[x.name for x in samplers], type="index")
+            fix_wh = gr.Radio(label='fix width height direction', elem_id="fix_wh", choices=[x for x in self.fix_whs], value=0, type="index")
+
+        with gr.Group():
+            if is_img2img:
+                rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers],value=[x.name for x in samplers_for_img2img])#, type="index"
+            else :
+                rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers],value=[x.name for x in samplers])#, type="index"
         
         # samplers
-        
-        fixed_seeds = gr.Checkbox(label='Keep -1 for seeds',value=True)
+        with gr.Group():
+            fixed_seeds = gr.Checkbox(label='Keep -1 for seeds',value=True)
         
         #return [loops,denoising_strength_change_factor]
-        return [loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler]#,whmax
+        return [loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize]#,whmax
 
     #def run(self,p,loops,denoising_strength_change_factor):
-    def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler):#,whmax
+    def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize):#,whmax
         #print(f"p.all_seeds ; {p.all_seeds}")
-        print(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};{p.sampler_index};{rnd_sampler};")
-        print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};{type(p.sampler_index)};{type(rnd_sampler)};")
+        print(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};{p.sampler_name};{rnd_sampler};")
+        print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};{type(p.sampler_name)};{type(rnd_sampler)};")
         
         # 와일드카드 텍스트 저장용 폴더 생성
         #print(f"p.outpath_samples ; {p.outpath_samples}")
@@ -118,24 +125,24 @@ class Script(scripts.Script):
 
         prompt = p.prompt[0] if type(p.prompt) == list else p.prompt
         negative_prompt = p.negative_prompt[0] if type(p.negative_prompt) == list else p.negative_prompt
-
-        h1=h1/64
-        h2=h2/64
-        w1=w1/64
-        w2=w2/64
+        if not no_resize:
+            h1=h1/64
+            h2=h2/64
+            w1=w1/64
+            w2=w2/64
+            (wmin,wmax)= (min(w1,w2),max(w1,w2))
+            (hmin,hmax)= (min(h1,h2),max(h1,h2))
+            wh_chg = {0 : wh_chg_n, 1: wh_chg_w, 2 : wh_chg_h}.get(fix_wh, wh_chg_n)
         
         (stepmin,stepmax)= (min(step2,step1),max(step2,step1))
         (cfgmin,cfgmax)= (min(cfg1,cfg2),max(cfg1,cfg2))
-        (wmin,wmax)= (min(w1,w2),max(w1,w2))
-        (hmin,hmax)= (min(h1,h2),max(h1,h2))
         
         #print(f" width:{w1},{w2} ; height:{h1},{h2}")
         
-        wh_chg = {0 : wh_chg_n, 1: wh_chg_w, 2 : wh_chg_h}.get(fix_wh, wh_chg_n)
         
         rnd_sampler_chg=False
         if len(rnd_sampler) == 1:
-            p.sampler_index=rnd_sampler[0]
+            p.sampler_name=rnd_sampler[0]
         elif len(rnd_sampler) > 1:
             rnd_sampler_chg=True
         
@@ -144,15 +151,14 @@ class Script(scripts.Script):
             
             p.steps=random.randint(stepmin,stepmax)
             p.cfg_scale=random.randint(cfgmin,cfgmax)
-            p.width=random.randint(wmin,wmax)
-            p.height=random.randint(hmin,hmax)
+            
+            if not no_resize:
+                p.width=random.randint(wmin,wmax)*64
+                p.height=random.randint(hmin,hmax)*64
+                wh_chg(p)
+            
             if rnd_sampler_chg:
-                p.sampler_index=random.choice(rnd_sampler)
-            
-            wh_chg(p)
-            
-            p.width=p.width*64
-            p.height=p.height*64
+                p.sampler_name=random.choice(rnd_sampler)
             
             print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ; width:{p.width} ; height:{p.height}")
             
