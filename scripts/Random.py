@@ -14,6 +14,10 @@ from PIL import Image
 from modules import processing,shared,generation_parameters_copypaste
 from modules.shared import opts,state
 from modules.sd_samplers import samplers,samplers_for_img2img
+import logging
+logger = logging.getLogger(__name__)
+file_handler = logging.FileHandler('Random.py.log','a')
+logger.addHandler(file_handler)
 
 def create_infotext(p):
 
@@ -118,8 +122,8 @@ class Script(scripts.Script):
     #def run(self,p,loops,denoising_strength_change_factor):
     def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize,denoising2,denoising1):#,whmax
         #print(f"p.all_seeds ; {p.all_seeds}")
-        print(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};{p.sampler_name};{p.denoising_strength};{rnd_sampler};")
-        print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};{type(p.sampler_name)};{type(p.denoising_strength)};{type(rnd_sampler)};")
+        logger.info(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};{p.sampler_name};{p.denoising_strength};{rnd_sampler};")
+        logger.info(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};{type(p.sampler_name)};{type(p.denoising_strength)};{type(rnd_sampler)};")
         
         # 와일드카드 텍스트 저장용 폴더 생성
         #print(f"p.outpath_samples ; {p.outpath_samples}")
@@ -191,14 +195,20 @@ class Script(scripts.Script):
                 p.sampler_name=random.choice(rnd_sampler)
             
             if is_img2img:
-                print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ;  denoising_strength:{p.denoising_strength} ; width:{p.width} ; height:{p.height}")
+                logger.info(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ;  denoising_strength:{p.denoising_strength} ; width:{p.width} ; height:{p.height}")
             else :
-                print(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ; width:{p.width} ; height:{p.height}")
+                logger.info(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ; width:{p.width} ; height:{p.height}")
             
             p.prompt = prompt
             p.negative_prompt = negative_prompt
             p.prompt_for_display = p.prompt[0] if type(p.prompt) == list else p.prompt
 
+            logger.info(f"--prompt--")
+            logger.info(f"{p.prompt}")
+            logger.info(f"--negative_prompt--")
+            logger.info(f"{p.negative_prompt}")
+            logger.info(f"-------------------")
+            
             if fixed_seeds:
                 p.seed=-1;
                 processing.fix_seed(p)
@@ -207,7 +217,13 @@ class Script(scripts.Script):
                 proc = process_images(p)
                 image = proc.images
             except Exception as e :
-                print(f"process_images err ;\r\n",e)
+                logger.info(f"process_images err ;\r\n",e)
+                
+            logger.info(f"--prompt--")
+            logger.info(f"{p.prompt}")
+            logger.info(f"--negative_prompt--")
+            logger.info(f"{p.negative_prompt}")
+            logger.info(f"-------------------")
             
             if state.interrupted:
                 break
