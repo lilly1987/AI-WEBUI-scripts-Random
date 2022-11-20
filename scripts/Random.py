@@ -60,9 +60,12 @@ class Script(scripts.Script):
 
     def ui(self,is_img2img):
         print(f"is_img2img : {(is_img2img)};")
-        info=gr.HTML("<br>")
+        gr.HighlightedText(" ")
         with gr.Blocks():
-            loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=10000)
+            if is_img2img:
+                loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=10000)
+            else:
+                loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=1)
         #denoising_strength_change_factor = gr.Slider(minimum=0.9,maximum=1.1,step=0.01,label='Denoising strength change factor',value=1)
         with gr.Blocks():
             step1 = gr.Slider(minimum=1,maximum=150,step=1,label='step1 min/max',value=10)
@@ -74,16 +77,19 @@ class Script(scripts.Script):
         #cfgc = gr.Slider(minimum=1,maximum=100,step=1,label='cfg cnt',value=10)
         #if is_img2img:
         with gr.Blocks():
-            info1=gr.HighlightedText("olny i2i option")
-            denoising1 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising1 min/max',value=0)
-            denoising2 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising2 min/max',value=1)
+            gr.HighlightedText("olny i2i option")
+            denoising1 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising1 min/max',value=0.5)
+            denoising2 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising2 min/max',value=1.0)
             #else :
             #    denoising1=None
             #    denoising2=None
 
         with gr.Blocks():
-            info2=gr.HighlightedText("size")
-            no_resize = gr.Checkbox(label='no resize',value=False)
+            gr.HighlightedText("size")
+            if is_img2img:
+                no_resize = gr.Checkbox(label='no resize',value=True)
+            else:
+                no_resize = gr.Checkbox(label='no resize',value=False)
             w1 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 1 min/max', elem_id="w1",value=512)
             w2 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 2 min/max', elem_id="w2",value=768)
             h1 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 1 min/max', elem_id="h1",value=512)
@@ -95,7 +101,7 @@ class Script(scripts.Script):
 
 
         with gr.Blocks():
-            info2=gr.HighlightedText(" ")
+            gr.HighlightedText(" ")
             if is_img2img:
                 rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers],value=[x.name for x in samplers_for_img2img])#, type="index"
             else :
@@ -103,14 +109,14 @@ class Script(scripts.Script):
         
         # samplers
         with gr.Blocks():
-            info2=gr.HighlightedText(" ")
+            gr.HighlightedText(" ")
             fixed_seeds = gr.Checkbox(label='Keep -1 for seeds',value=True)
         
         #return [loops,denoising_strength_change_factor]
-        return [loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize,denoising2,denoising1,info1,info2]#,whmax
+        return [loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize,denoising2,denoising1]#,whmax
 
     #def run(self,p,loops,denoising_strength_change_factor):
-    def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize,denoising2,denoising1,info1,info2):#,whmax
+    def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize,denoising2,denoising1):#,whmax
         #print(f"p.all_seeds ; {p.all_seeds}")
         print(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};{p.sampler_name};{p.denoising_strength};{rnd_sampler};")
         print(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};{type(p.sampler_name)};{type(p.denoising_strength)};{type(rnd_sampler)};")
