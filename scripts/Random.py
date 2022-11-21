@@ -15,9 +15,37 @@ from modules import processing,shared,generation_parameters_copypaste
 from modules.shared import opts,state
 from modules.sd_samplers import samplers,samplers_for_img2img
 import logging
+
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('Random.py.log','a')
-logger.addHandler(file_handler)
+logger.handlers.clear()# 안먹힘
+#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
+#logger.setLevel(logging.WARNING)
+
+# 일반 핸들러. 할 필요 업음. 이미 메인에서 출력해줌
+#streamFormatter = logging.Formatter("Random Stream %(asctime)s %(levelname)s %(message)s")
+#streamHandler = logging.StreamHandler()
+#streamHandler.setLevel(logging.INFO)
+##streamHandler.setLevel(logging.WARNING)
+#streamHandler.setFormatter(streamFormatter)
+#logger.addHandler(streamHandler)
+
+# 파일 핸들러
+fileFormatter = logging.Formatter("Random File %(asctime)s %(levelname)s %(message)s")
+fileHandler = logging.FileHandler("Random.py.log")
+fileHandler.setLevel(logging.DEBUG)
+fileHandler.setFormatter(fileFormatter)
+logger.addHandler(fileHandler)
+
+if logger.getEffectiveLevel() == logging.DEBUG :
+    logger.debug('debug')
+    logger.info('info')
+    logger.warning('warning')
+    logger.error('error')
+    logger.critical('critical')
+
+logger.debug('==== DEBUG ====')
+logger.info(' Load ')
 
 def create_infotext(p):
 
@@ -63,8 +91,8 @@ class Script(scripts.Script):
         return "Random"
 
     def ui(self,is_img2img):
-        print(f"is_img2img : {(is_img2img)};")
-        gr.HighlightedText(" ")
+        logger.debug(f"is_img2img : {(is_img2img)};")
+        gr.Markdown(" ")
         with gr.Blocks():
             if is_img2img:
                 loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=10000)
@@ -81,7 +109,7 @@ class Script(scripts.Script):
         #cfgc = gr.Slider(minimum=1,maximum=100,step=1,label='cfg cnt',value=10)
         #if is_img2img:
         with gr.Blocks():
-            gr.HighlightedText("olny i2i option")
+            gr.Markdown("olny i2i option")
             denoising1 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising1 min/max',value=0.5)
             denoising2 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising2 min/max',value=1.0)
             #else :
@@ -89,7 +117,7 @@ class Script(scripts.Script):
             #    denoising2=None
 
         with gr.Blocks():
-            gr.HighlightedText("size")
+            gr.Markdown("size")
             if is_img2img:
                 no_resize = gr.Checkbox(label='no resize',value=True)
             else:
@@ -105,7 +133,7 @@ class Script(scripts.Script):
 
 
         with gr.Blocks():
-            gr.HighlightedText(" ")
+            gr.Markdown(" ")
             if is_img2img:
                 rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers],value=[x.name for x in samplers_for_img2img])#, type="index"
             else :
@@ -113,7 +141,7 @@ class Script(scripts.Script):
         
         # samplers
         with gr.Blocks():
-            gr.HighlightedText(" ")
+            gr.Markdown(" ")
             fixed_seeds = gr.Checkbox(label='Keep -1 for seeds',value=True)
         
         #return [loops,denoising_strength_change_factor]
@@ -122,8 +150,8 @@ class Script(scripts.Script):
     #def run(self,p,loops,denoising_strength_change_factor):
     def run(self,p,loops,step1,step2,cfg1,cfg2,fixed_seeds,w1,w2,h1,h2,fix_wh,rnd_sampler,no_resize,denoising2,denoising1):#,whmax
         #print(f"p.all_seeds ; {p.all_seeds}")
-        logger.info(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};{p.sampler_name};{p.denoising_strength};{rnd_sampler};")
-        logger.info(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};{type(p.sampler_name)};{type(p.denoising_strength)};{type(rnd_sampler)};")
+        logger.debug(f"{loops};{step1};{step2};{cfg1};{cfg2};{fixed_seeds};{fix_wh};{p.sampler_name};{p.denoising_strength};{rnd_sampler};")
+        logger.debug(f"{type(loops)};{type(step1)};{type(step2)};{type(cfg1)};{type(cfg2)};{type(fixed_seeds)};{type(fix_wh)};{type(p.sampler_name)};{type(p.denoising_strength)};{type(rnd_sampler)};")
         
         # 와일드카드 텍스트 저장용 폴더 생성
         #print(f"p.outpath_samples ; {p.outpath_samples}")
@@ -178,7 +206,7 @@ class Script(scripts.Script):
         elif len(rnd_sampler) > 1:
             rnd_sampler_chg=True
         
-        print(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
+        logger.debug(f"bdfore loops:{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale}")
         for i in range(loops):
             
             p.steps=random.randint(stepmin,stepmax)
@@ -203,30 +231,29 @@ class Script(scripts.Script):
             p.negative_prompt = negative_prompt
             p.prompt_for_display = p.prompt[0] if type(p.prompt) == list else p.prompt
 
-            logger.info(f"--prompt--")
-            logger.info(f"{p.prompt}")
-            logger.info(f"--negative_prompt--")
-            logger.info(f"{p.negative_prompt}")
-            logger.info(f"-------------------")
+            logger.debug(f"--prompt--")
+            logger.debug(f"{p.prompt}")
+            logger.debug(f"--negative_prompt--")
+            logger.debug(f"{p.negative_prompt}")
+            logger.debug(f"-------------------")
             
             if fixed_seeds:
                 p.seed=-1;
                 processing.fix_seed(p)
             
             try:
-                proc = process_images(p)
-                image = proc.images
+                processed = process_images(p)
             except Exception as e :
-                logger.info(f"process_images err ;\r\n",e)
+                logger.error(f"process_images err ;\r\n",e)
                 
-            logger.info(f"--prompt--")
-            logger.info(f"{p.prompt}")
-            logger.info(f"--negative_prompt--")
-            logger.info(f"{p.negative_prompt}")
-            logger.info(f"-------------------")
+            logger.debug(f"--prompt--")
+            logger.debug(f"{p.prompt}")
+            logger.debug(f"--negative_prompt--")
+            logger.debug(f"{p.negative_prompt}")
+            logger.debug(f"-------------------")
             
             if state.interrupted:
                 break
             
-        return Processed(p,image,p.seed,proc.info)
+        return processed
 
