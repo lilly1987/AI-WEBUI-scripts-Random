@@ -71,9 +71,9 @@ def apply_order(p, x, xs):
     p.prompt = prompt_tmp + p.prompt
     
 
-def build_samplers_dict(p):
+def build_samplers_dict():
     samplers_dict = {}
-    for i, sampler in enumerate(get_correct_sampler(p)):
+    for i, sampler in enumerate(sd_samplers.all_samplers):
         samplers_dict[sampler.name.lower()] = i
         for alias in sampler.aliases:
             samplers_dict[alias.lower()] = i
@@ -81,7 +81,7 @@ def build_samplers_dict(p):
 
 
 def apply_sampler(p, x, xs):
-    sampler_index = build_samplers_dict(p).get(x.lower(), None)
+    sampler_index = build_samplers_dict().get(x.lower(), None)
     if sampler_index is None:
         raise RuntimeError(f"Unknown sampler: {x}")
 
@@ -89,7 +89,7 @@ def apply_sampler(p, x, xs):
 
 
 def confirm_samplers(p, xs):
-    samplers_dict = build_samplers_dict(p)
+    samplers_dict = build_samplers_dict()
     for x in xs:
         if x.lower() not in samplers_dict.keys():
             raise RuntimeError(f"Unknown sampler: {x}")
@@ -166,6 +166,8 @@ def str_permutations(x):
 
 
 AxisOption = namedtuple("AxisOption", ["label", "type", "apply", "format_value", "confirm"])
+AxisOptionImg2Img = namedtuple("AxisOptionImg2Img", ["label", "type", "apply", "format_value", "confirm"])
+
 
 axis_options = [
     AxisOption("Nothing", str, do_nothing, format_nothing, None),
@@ -187,6 +189,7 @@ axis_options = [
     AxisOption("Eta", float, apply_field("eta"), format_value_add_label, None),
     AxisOption("Clip skip", int, apply_clip_skip, format_value_add_label, None),
     AxisOption("Denoising", float, apply_field("denoising_strength"), format_value_add_label, None),
+    AxisOption("Cond. Image Mask Weight", float, apply_field("inpainting_mask_weight"), format_value_add_label, None),
 ]
 def draw_xy_grid(p, xs, ys, x_labels, y_labels, cell, draw_legend, include_lone_images):
     ver_texts = [[images.GridAnnotation(y)] for y in y_labels]
@@ -253,10 +256,17 @@ class SharedSettingsStackHelper(object):
         hypernetwork.apply_strength()
 
         opts.data["CLIP_stop_at_last_layers"] = self.CLIP_stop_at_last_layers
-        
+
+
+re_range = re.compile(r"\s*([+-]?\s*\d+)\s*-\s*([+-]?\s*\d+)(?:\s*\(([+-]\d+)\s*\))?\s*")
+re_range_float = re.compile(r"\s*([+-]?\s*\d+(?:.\d*)?)\s*-\s*([+-]?\s*\d+(?:.\d*)?)(?:\s*\(([+-]\d+(?:.\d*)?)\s*\))?\s*")
+
+re_range_count = re.compile(r"\s*([+-]?\s*\d+)\s*-\s*([+-]?\s*\d+)(?:\s*\[(\d+)\s*\])?\s*")
+re_range_count_float = re.compile(r"\s*([+-]?\s*\d+(?:.\d*)?)\s*-\s*([+-]?\s*\d+(?:.\d*)?)(?:\s*\[(\d+(?:.\d*)?)\s*\])?\s*")
+
 class Script(scripts.Script):
     def title(self):
-        return "Random grid"
+        return "X/Y plot Random"
 
     def ui(self, is_img2img):
         step1 = gr.Slider(minimum=1, maximum=150, step=1, label='step1 min/max', value=10)
