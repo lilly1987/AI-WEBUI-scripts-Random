@@ -95,23 +95,23 @@ class Script(scripts.Script):
         gr.Markdown(" ")
         with gr.Blocks():
             if is_img2img:
-                loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=10000)
+                loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=10000, elem_id="Loops")
             else:
-                loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=1)
+                loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=1, elem_id="Loops")
         #denoising_strength_change_factor = gr.Slider(minimum=0.9,maximum=1.1,step=0.01,label='Denoising strength change factor',value=1)
         with gr.Blocks():
-            step1 = gr.Slider(minimum=1,maximum=150,step=1,label='step1 min/max',value=10)
-            step2 = gr.Slider(minimum=1,maximum=150,step=1,label='step2 min/max',value=15)
+            step1 = gr.Slider(minimum=1,maximum=150,step=1,label='step1 min/max',value=10, elem_id="step1")
+            step2 = gr.Slider(minimum=1,maximum=150,step=1,label='step2 min/max',value=15, elem_id="step2")
         #stepc = gr.Slider(minimum=1,maximum=100,step=1,label='step cnt',value=10)
         with gr.Blocks():
-            cfg1 = gr.Slider(minimum=1,maximum=30,step=0.5,label='cfg1 min/max',value=6)
-            cfg2 = gr.Slider(minimum=1,maximum=30,step=0.5,label='cfg2 min/max',value=15)
+            cfg1 = gr.Slider(minimum=1,maximum=30,step=0.5,label='cfg1 min/max',value=6 , elem_id="cfg1")
+            cfg2 = gr.Slider(minimum=1,maximum=30,step=0.5,label='cfg2 min/max',value=15, elem_id="cfg2")
         #cfgc = gr.Slider(minimum=1,maximum=100,step=1,label='cfg cnt',value=10)
         #if is_img2img:
         with gr.Blocks():
-            gr.Markdown("olny i2i option")
-            denoising1 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising1 min/max',value=0.5)
-            denoising2 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising2 min/max',value=1.0)
+            gr.Markdown("only i2i option")
+            denoising1 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising1 min/max',value=0.5, elem_id="denoising1")
+            denoising2 = gr.Slider(minimum=0,maximum=1,step=0.01,label='denoising2 min/max',value=1.0, elem_id="denoising2")
             #else :
             #    denoising1=None
             #    denoising2=None
@@ -119,17 +119,17 @@ class Script(scripts.Script):
         with gr.Blocks():
             gr.Markdown("size")
             if is_img2img:
-                no_resize = gr.Checkbox(label='no resize',value=True)
+                no_resize = gr.Checkbox(label='no resize',value=True , elem_id="no resize")
             else:
-                no_resize = gr.Checkbox(label='no resize',value=False)
-            w1 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 1 min/max', elem_id="w1",value=512)
-            w2 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 2 min/max', elem_id="w2",value=768)
-            h1 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 1 min/max', elem_id="h1",value=512)
-            h2 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 2 min/max', elem_id="h2",value=768)
+                no_resize = gr.Checkbox(label='no resize',value=False, elem_id="no resize")
+            w1 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 1 min/max' ,value=512 , elem_id="w1")
+            w2 = gr.Slider(minimum=64,maximum=2048,step=64,label='width 2 min/max' ,value=768 , elem_id="w2")
+            h1 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 1 min/max',value=512 , elem_id="h1")
+            h2 = gr.Slider(minimum=64,maximum=2048,step=64,label='height 2 min/max',value=768 , elem_id="h2")
         
         #whmax = gr.Slider(minimum=4096,maximum=4194304,step=4096,label='w*h max',value=393216)
         
-            fix_wh = gr.Radio(label='fix width height direction', elem_id="fix_wh", choices=[x for x in self.fix_whs], value=0, type="index")
+            fix_wh = gr.Radio(label='fix width height direction', choices=[x for x in self.fix_whs], value=self.fix_whs[0], type="index", elem_id="fix_wh")
 
 
         with gr.Blocks():
