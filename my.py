@@ -1,3 +1,11 @@
+import re,random
+from modules.images import FilenameGenerator
+from PIL import Image
+from modules import processing,shared,generation_parameters_copypaste
+from modules.shared import opts,state
+from modules.sd_samplers import samplers,samplers_for_img2img
+import logging
+
 def wh_chg_n(p):
     return
 def wh_chg_w(p):
