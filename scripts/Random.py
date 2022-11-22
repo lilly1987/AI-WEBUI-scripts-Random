@@ -18,9 +18,9 @@ import logging
 from my import *
 
 logger = logging.getLogger(__name__)
-logger.handlers.clear()# 안먹힘
+logger.handlers.clear()
 #logger.setLevel(logging.DEBUG)
-logger.setLevel(logging.INFO)
+#logger.setLevel(logging.INFO)
 #logger.setLevel(logging.WARNING)
 
 # 일반 핸들러. 할 필요 업음. 이미 메인에서 출력해줌
@@ -59,9 +59,9 @@ class Script(scripts.Script):
         with gr.Blocks():
             gr.Markdown(" ", elem_id="rnd-loop")#    padding-bottom: 100px;
             if is_img2img:
-                loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=10000, elem_id="rnd-loops")
-            else:
                 loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=1, elem_id="rnd-loops")
+            else:
+                loops = gr.Slider(minimum=1,maximum=10000,step=1,label='Loops',value=10000, elem_id="rnd-loops")
         #denoising_strength_change_factor = gr.Slider(minimum=0.9,maximum=1.1,step=0.01,label='Denoising strength change factor',value=1)
         gr.Markdown("how it works step,cfg,denoising,width,height  \r\nif step1 > step2 then random(min=step2,max=step1)  \r\nif step2 > step1 then random(min=step1,max=step2)", elem_id="rnd-step")
         with gr.Blocks():
