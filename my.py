@@ -14,6 +14,11 @@ def wh_chg_w(p):
 def wh_chg_h(p):
     if p.width>p.height:
         (p.width,p.height)=(p.height,p.width)
+def wh_chg_r(p):
+    if random.random()>0.5:
+        (p.width,p.height)=(p.height,p.width)
+
+
         
 def create_infotext(p):
 

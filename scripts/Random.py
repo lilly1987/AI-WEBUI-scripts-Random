@@ -49,7 +49,9 @@ logger.debug('==== DEBUG ====')
 logger.info(' Load ')
 
 class Script(scripts.Script):
-    fix_whs=['none','width long','height long']
+    fix_whs=['none','width long','height long','random']
+    #fix_whs_d== dict(enumerate(fix_whs))
+    fix_whs_d={0 : wh_chg_n, 1: wh_chg_w, 2 : wh_chg_h, 3 : wh_chg_r}
     
     def title(self):
         return "Random"
@@ -152,7 +154,7 @@ class Script(scripts.Script):
             w2=w2/64
             (wmin,wmax)= (min(w1,w2),max(w1,w2))
             (hmin,hmax)= (min(h1,h2),max(h1,h2))
-            wh_chg = {0 : wh_chg_n, 1: wh_chg_w, 2 : wh_chg_h}.get(fix_wh, wh_chg_n)
+            wh_chg = self.fix_whs_d.get(fix_wh, wh_chg_n)
         
         (stepmin,stepmax)= (min(step2,step1),max(step2,step1))
         (cfgmin,cfgmax)= (min(cfg1,cfg2),max(cfg1,cfg2))
