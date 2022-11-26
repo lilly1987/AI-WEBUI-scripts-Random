@@ -1,5 +1,10 @@
+더이상 유지보수 하지 않음. No more maintenance.  
+
+AI-WEBUI-scripts-Random -> https://github.com/lilly1987/sd-random-extensions/
+
 # AI-WEBUI-scripts-Random
 
+더이상 유지보수 하지 않음. No more maintenance.  
 랜덤 다이나믹은 https://github.com/lilly1987/sd-dynamic-prompting 로 분리  
 마음대로 개조 및 배포 가능  
 
