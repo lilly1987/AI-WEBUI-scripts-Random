@@ -1,6 +1,7 @@
-더이상 유지보수 하지 않음. No more maintenance.  
+# 더이상 유지보수 하지 않음. No more maintenance.  
 
-AI-WEBUI-scripts-Random -> https://github.com/lilly1987/sd-random-extensions/
+- AI-WEBUI-scripts-Random -> https://github.com/lilly1987/sd-random-extensions/
+
 
 # AI-WEBUI-scripts-Random
 
