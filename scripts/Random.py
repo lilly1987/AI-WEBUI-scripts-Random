@@ -213,7 +213,7 @@ class Script(scripts.Script):
             try:
                 processed = process_images(p)
             except Exception as e :
-                logger.error(f"process_images err ;\r\n",e)
+                logger.error(f"process_images err ;",e)
                 
             logger.debug(f"--prompt--")
             logger.debug(f"{p.prompt}")
