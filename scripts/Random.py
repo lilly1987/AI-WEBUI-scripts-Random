@@ -192,9 +192,9 @@ class Script(scripts.Script):
                 p.sampler_name=random.choice(rnd_sampler)
             
             if is_img2img:
-                logger.info(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ;  denoising_strength:{p.denoising_strength} ; width:{p.width} ; height:{p.height}")
+                logger.info(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ;  denoising_strength:{p.denoising_strength} ; width:{p.width} ; height:{p.height} ; sampler_name:{p.sampler_name}")
             else :
-                logger.info(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ; width:{p.width} ; height:{p.height}")
+                logger.info(f"loops: {i+1}/{loops} ; steps:{p.steps} ; cfg:{p.cfg_scale} ; width:{p.width} ; height:{p.height} ;  sampler_name:{p.sampler_name}")
             
             p.prompt = prompt
             p.negative_prompt = negative_prompt
