@@ -104,7 +104,7 @@ class Script(scripts.Script):
         with gr.Blocks():
             gr.Markdown(" ", elem_id="sampler")
             if is_img2img:
-                rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers],value=[x.name for x in samplers_for_img2img])#, type="index"
+                rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers_for_img2img],value=[x.name for x in samplers_for_img2img])#, type="index"
             else :
                 rnd_sampler = gr.CheckboxGroup(label='Sampling Random', elem_id="rnd_sampler", choices=[x.name for x in samplers],value=[x.name for x in samplers])#, type="index"
         
